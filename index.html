@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MacroKOL">
+<meta name="description" content="宏观经济情报站 · 加密 · 美股 · 全球市场">
+<title>MacroKOL · 宏观情报站</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231a1814'/><text x='50%' y='60%' dominant-baseline='middle' text-anchor='middle' font-size='20' fill='%23c8692a'>M</text></svg>">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #f4efe5;
+  --bg2:      #ede7da;
+  --bg3:      #e5dece;
+  --card:     #faf6ef;
+  --card2:    #fff8ef;
+  --border:   #d5cfc2;
+  --border2:  #c4bdb0;
+  --text:     #18160f;
+  --text2:    #47423a;
+  --text3:    #7c766d;
+  --text4:    #a09890;
+  --accent:   #b85e22;
+  --accent2:  #974d1a;
+  --accent3:  #e8843c;
+  --green:    #1f6b42;
+  --green2:   #d4edda;
+  --red:      #b82222;
+  --red2:     #fde8e8;
+  --blue:     #1a4f7a;
+  --blue2:    #e3eef8;
+  --gold:     #a07c10;
+  --gold2:    #fdf3d0;
+  --purple:   #5b3fa0;
+  --purple2:  #ede8fa;
+  --shadow:   0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow2:  0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.08);
+  --radius:   10px;
+  --radius2:  14px;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; cursor: pointer; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════
+   TOP NAV
+═══════════════════════════════════════════ */
+.topnav {
+  background: var(--text);
+  color: var(--bg);
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.nav-logo {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #f0e8d8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.nav-logo-dot { color: var(--accent3); font-size: 22px; line-height: 1; }
+.nav-ticker {
+  flex: 1;
+  overflow: hidden;
+  margin: 0 20px;
+  position: relative;
+}
+.ticker-inner {
+  display: flex;
+  gap: 28px;
+  white-space: nowrap;
+  animation: ticker 40s linear infinite;
+  font-size: 12px;
+  color: #c8bfb0;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.ticker-item { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.ticker-sym { font-weight: 700; color: #e8dcc8; }
+.ticker-up { color: #6dd98a; }
+.ticker-dn { color: #ff8080; }
+.nav-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.nav-time { font-size: 11px; color: #8a8070; letter-spacing: 0.3px; }
+.nav-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #e8dcc8;
+  padding: 5px 13px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.nav-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ═══════════════════════════════════════════
+   SECTION TABS (main nav below header)
+═══════════════════════════════════════════ */
+.section-tabs {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.section-tabs::-webkit-scrollbar { display: none; }
+.stab {
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text3);
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+.stab:hover { color: var(--text2); }
+.stab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.page { display: none; }
+.page.active { display: block; }
+.wrap { max-width: 1380px; margin: 0 auto; padding: 20px 18px 40px; }
+.grid-main { display: grid; grid-template-columns: 1fr 360px; gap: 18px; align-items: start; }
+.col-left { min-width: 0; }
+.col-right { position: sticky; top: 106px; }
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.card-head {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--bg3);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.card-title-icon { font-size: 16px; }
+.card-sub { font-size: 11px; color: var(--text4); margin-top: 2px; }
+.card-body { padding: 14px 18px; }
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 16px;
+  border: none; border-radius: 6px;
+  font-family: Verdana, sans-serif;
+  font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.18s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 3px 10px rgba(184,94,34,0.3); }
+.btn-secondary { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+.btn-secondary:hover { background: var(--border); }
+.btn-ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+.btn-ghost:hover { background: var(--accent); color: #fff; }
+.btn-sm { padding: 5px 11px; font-size: 11px; }
+.btn-icon { padding: 6px 10px; }
+.btn-group { display: flex; gap: 7px; flex-wrap: wrap; }
+
+/* ═══════════════════════════════════════════
+   TOPIC CHIPS
+═══════════════════════════════════════════ */
+.chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 18px 14px; }
+.chip {
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--border2);
+  background: var(--bg);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.chip-all { background: var(--text); color: var(--bg); border-color: var(--text); }
+.chip-all.active, .chip-all:hover { background: var(--text2); color: #fff; border-color: var(--text2); }
+
+/* ═══════════════════════════════════════════
+   STAT TICKER ROW
+═══════════════════════════════════════════ */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+}
+.stat-label { font-size: 10px; font-weight: 700; color: var(--text4); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.stat-val { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.stat-sub { font-size: 11px; margin-top: 3px; font-weight: 700; }
+.stat-up { color: var(--green); }
+.stat-dn { color: var(--red); }
+.stat-neutral { color: var(--text3); }
+
+/* ═══════════════════════════════════════════
+   X POST GENERATOR
+═══════════════════════════════════════════ */
+.xpost-box {
+  background: #fff;
+  border: 2px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  min-height: 90px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.xpost-box:focus { border-color: var(--accent); }
+.xpost-box.empty { color: var(--text4); font-style: italic; }
+.xpost-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--bg3);
+}
+.char-count { font-size: 12px; font-weight: 700; color: var(--text3); }
+.char-count.ok { color: var(--green); }
+.char-count.warn { color: var(--gold); }
+.char-count.over { color: var(--red); }
+.xpost-loading {
+  display: none; align-items: center; gap: 8px;
+  color: var(--text3); font-size: 13px; padding: 20px 0;
+}
+.xpost-loading.show { display: flex; }
+
+/* ═══════════════════════════════════════════
+   ANALYSIS BLOCKS
+═══════════════════════════════════════════ */
+.analysis-section { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.analysis-block {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 12px 14px;
+}
+.analysis-block.full { grid-column: 1 / -1; }
+.analysis-block.green-border { border-left-color: var(--green); }
+.analysis-block.red-border { border-left-color: var(--red); }
+.analysis-block.blue-border { border-left-color: var(--blue); }
+.analysis-block.gold-border { border-left-color: var(--gold); }
+.a-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--accent); margin-bottom: 5px;
+}
+.a-label.green { color: var(--green); }
+.a-label.red { color: var(--red); }
+.a-label.blue { color: var(--blue); }
+.a-label.gold { color: var(--gold); }
+.a-text { font-size: 13px; line-height: 1.7; color: var(--text2); }
+
+/* ═══════════════════════════════════════════
+   NEWS FEED
+═══════════════════════════════════════════ */
+.news-tabs {
+  display: flex; gap: 4px; padding: 10px 18px 0;
+  overflow-x: auto; scrollbar-width: none;
+}
+.news-tabs::-webkit-scrollbar { display: none; }
+.ntab {
+  padding: 5px 13px;
+  border-radius: 5px;
+  font-size: 12px; font-weight: 700;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.ntab:hover { background: var(--bg3); color: var(--text2); }
+.ntab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.news-list { padding: 6px 0; }
+.news-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--bg3);
+  transition: background 0.15s;
+}
+.news-item:hover { background: var(--bg2); }
+.news-item:last-child { border-bottom: none; }
+.news-badge {
+  flex-shrink: 0; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 3px; margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+.b-crypto { background: #fff3e0; color: #bf360c; }
+.b-macro  { background: #e8f5e9; color: #1b5e20; }
+.b-stock  { background: #e3f2fd; color: #0d47a1; }
+.b-geo    { background: #fce4ec; color: #880e4f; }
+.b-fx     { background: #f3e5f5; color: #4a148c; }
+.news-content { flex: 1; min-width: 0; }
+.news-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--text); line-height: 1.45;
+  margin-bottom: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-title a:hover { color: var(--accent); }
+.news-desc {
+  font-size: 12px; color: var(--text3); line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-foot { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.news-src { font-size: 11px; font-weight: 700; color: var(--blue); }
+.news-time { font-size: 11px; color: var(--text4); }
+
+/* ═══════════════════════════════════════════
+   COLLAPSIBLE PRICE PANELS
+═══════════════════════════════════════════ */
+.cpanel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.cpanel-head {
+  background: var(--bg2);
+  padding: 11px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+  transition: background 0.15s;
+}
+.cpanel-head:hover { background: var(--bg3); }
+.cpanel-title { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.cpanel-arrow { font-size: 12px; color: var(--text4); transition: transform 0.2s; }
+.cpanel-arrow.open { transform: rotate(180deg); }
+.cpanel-body { display: none; background: var(--card); }
+.cpanel-body.open { display: block; }
+
+/* PRICE TABLE */
+.ptable { width: 100%; border-collapse: collapse; }
+.ptable th {
+  font-size: 10px; font-weight: 700; color: var(--text4);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 7px 12px; text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.ptable td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid var(--bg3); vertical-align: middle; }
+.ptable tr:last-child td { border-bottom: none; }
+.ptable tr:hover td { background: var(--bg2); }
+.p-sym { font-weight: 700; font-size: 13px; }
+.p-name { font-size: 11px; color: var(--text4); }
+.p-price { font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.p-chg { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 3px; }
+.p-up { background: var(--green2); color: var(--green); }
+.p-dn { background: var(--red2); color: var(--red); }
+.p-mc { font-size: 11px; color: var(--text4); }
+
+/* ═══════════════════════════════════════════
+   HEATMAP
+═══════════════════════════════════════════ */
+.heatmap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 12px; }
+.hm-cell {
+  border-radius: 6px; padding: 8px 4px;
+  text-align: center; cursor: default;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.hm-cell:hover { transform: scale(1.07); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.hm-sym { font-size: 10px; font-weight: 700; opacity: 0.9; }
+.hm-pct { font-size: 12px; font-weight: 700; margin-top: 2px; }
+
+/* ═══════════════════════════════════════════
+   FEAR & GREED
+═══════════════════════════════════════════ */
+.fg-wrap { padding: 14px; }
+.fg-num { font-size: 48px; font-weight: 700; text-align: center; line-height: 1; }
+.fg-label { font-size: 14px; font-weight: 700; text-align: center; margin: 4px 0 12px; }
+.fg-bar-bg { background: linear-gradient(to right, #c0392b, #e67e22, #f1c40f, #27ae60, #16a085); border-radius: 6px; height: 10px; position: relative; }
+.fg-bar-marker { position: absolute; top: -3px; width: 16px; height: 16px; background: var(--text); border-radius: 50%; transform: translateX(-50%); border: 2px solid var(--card); }
+.fg-range { display: flex; justify-content: space-between; font-size: 10px; color: var(--text4); margin-top: 4px; }
+
+/* ═══════════════════════════════════════════
+   MORNING BRIEF / REPORT
+═══════════════════════════════════════════ */
+.report-page { padding: 20px 0; }
+.report-header {
+  background: var(--text);
+  color: var(--bg);
+  border-radius: var(--radius2);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.report-header::before {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 200px;
+  background: linear-gradient(135deg, transparent, rgba(200,105,42,0.15));
+}
+.report-edition { font-size: 11px; font-weight: 700; color: var(--accent3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+.report-headline { font-size: 22px; font-weight: 700; color: #f0e8d8; line-height: 1.3; margin-bottom: 8px; }
+.report-dateline { font-size: 12px; color: #8a7a68; }
+.report-divider { height: 2px; background: linear-gradient(to right, var(--accent), transparent); margin: 16px 0; }
+.report-section-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--accent); margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+}
+.report-body { font-size: 14px; line-height: 1.8; color: var(--text2); }
+.report-body p { margin-bottom: 10px; }
+.report-body strong { color: var(--text); }
+.report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.report-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.report-mini-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.report-mini-label { font-size: 10px; color: var(--text4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.report-mini-val { font-size: 16px; font-weight: 700; color: var(--text); }
+.report-mini-chg { font-size: 12px; font-weight: 700; }
+.report-bullets { list-style: none; }
+.report-bullets li {
+  padding: 6px 0 6px 16px;
+  border-bottom: 1px solid var(--bg3);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text2);
+  position: relative;
+}
+.report-bullets li::before {
+  content: '▸';
+  position: absolute; left: 0;
+  color: var(--accent);
+  font-size: 10px;
+  top: 9px;
+}
+.report-bullets li:last-child { border-bottom: none; }
+
+/* PRINT STYLES */
+@media print {
+  .topnav, .section-tabs, .btn, .chips, .news-tabs { display: none !important; }
+  .card { box-shadow: none; border: 1px solid #ccc; }
+  body { background: white; }
+}
+
+/* ═══════════════════════════════════════════
+   LOADING STATES
+═══════════════════════════════════════════ */
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 20px; color: var(--text3); font-size: 13px;
+}
+.skeleton { background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ═══════════════════════════════════════════
+   STATUS BAR
+═══════════════════════════════════════════ */
+.status-bar {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--text3);
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+.status-sep { color: var(--border2); }
+
+/* ═══════════════════════════════════════════
+   MARKET OVERVIEW TABLE
+═══════════════════════════════════════════ */
+.market-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--text); color: #f0e8d8;
+  padding: 11px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  opacity: 0; transform: translateY(16px);
+  transition: all 0.28s; z-index: 999; pointer-events: none;
+  box-shadow: var(--shadow2);
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════════════════════════════════
+   EMPTY & ERROR STATES
+═══════════════════════════════════════════ */
+.empty-state { text-align: center; padding: 32px 20px; color: var(--text4); }
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+.empty-text { font-size: 13px; }
+
+/* ═══════════════════════════════════════════
+   MOBILE / iOS
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .topnav { padding: 0 14px; height: 48px; }
+  .nav-ticker { display: none; }
+  .nav-time { display: none; }
+  .wrap { padding: 12px 12px 60px; }
+  .grid-main { grid-template-columns: 1fr; }
+  .col-right { position: static; }
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .analysis-section { grid-template-columns: 1fr; }
+  .analysis-block.full { grid-column: 1; }
+  .section-tabs { padding: 0 12px; }
+  .stab { padding: 11px 14px; font-size: 12px; }
+  .report-grid { grid-template-columns: 1fr; }
+  .report-grid-3 { grid-template-columns: 1fr 1fr; }
+  .heatmap { grid-template-columns: repeat(4, 1fr); }
+  .market-overview { grid-template-columns: 1fr; }
+  .nav-btn span { display: none; }
+}
+@media (max-width: 420px) {
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .heatmap { grid-template-columns: repeat(3, 1fr); }
+}
+/* iOS safe area */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .wrap { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP NAV ═══ -->
+<nav class="topnav">
+  <div class="nav-logo">
+    <span class="nav-logo-dot">◆</span> MACRO<span style="color:var(--accent3)">KOL</span>
+  </div>
+  <div class="nav-ticker">
+    <div class="ticker-inner" id="tickerInner">
+      <span class="ticker-item"><span class="ticker-sym">BTC</span> <span id="tk-btc">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">ETH</span> <span id="tk-eth">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">SOL</span> <span id="tk-sol">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">SPX</span> <span id="tk-spx" class="ticker-neutral">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">GOLD</span> <span id="tk-gold" class="ticker-neutral">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">OIL</span> <span id="tk-oil" class="ticker-neutral">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">DXY</span> <span id="tk-dxy" class="ticker-neutral">--</span></span>
+      <!-- duplicate for seamless loop -->
+      <span class="ticker-item"><span class="ticker-sym">BTC</span> <span id="tk-btc2">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">ETH</span> <span id="tk-eth2">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">SOL</span> <span id="tk-sol2">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">SPX</span> <span id="tk-spx2" class="ticker-neutral">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">GOLD</span> <span id="tk-gold2" class="ticker-neutral">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">OIL</span> <span id="tk-oil2" class="ticker-neutral">--</span></span>
+      <span class="ticker-item"><span class="ticker-sym">DXY</span> <span id="tk-dxy2" class="ticker-neutral">--</span></span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <span class="nav-time" id="navTime"></span>
+    <button class="nav-btn" onclick="refreshAll()">⟳ <span>刷新</span></button>
+  </div>
+</nav>
+
+<!-- ═══ SECTION TABS ═══ -->
+<div class="section-tabs">
+  <button class="stab active" onclick="showPage('dashboard', this)">📊 总览</button>
+  <button class="stab" onclick="showPage('news', this)">📰 资讯</button>
+  <button class="stab" onclick="showPage('markets', this)">💹 行情</button>
+  <button class="stab" onclick="showPage('xpost', this)">𝕏 投稿</button>
+  <button class="stab" onclick="showPage('report', this)">📋 日报</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: DASHBOARD
+══════════════════════════════════════════ -->
+<div id="page-dashboard" class="page active">
+<div class="wrap">
+
+  <!-- Status -->
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <span id="statusText">正在加载数据...</span>
+    <span class="status-sep">·</span>
+    <span id="lastUpdate">--</span>
+  </div>
+
+  <!-- TOPIC CHIPS -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="padding:12px 18px 4px">
+      <div class="card-title"><span class="card-title-icon">🎯</span> 分析焦点</div>
+    </div>
+    <div class="chips">
+      <div class="chip chip-all active" data-topic="all" onclick="selectTopic(this)">🌐 全领域</div>
+      <div class="chip" data-topic="crypto" onclick="selectTopic(this)">₿ 加密货币</div>
+      <div class="chip" data-topic="us-stock" onclick="selectTopic(this)">📈 美股</div>
+      <div class="chip" data-topic="macro" onclick="selectTopic(this)">🏛 宏观</div>
+      <div class="chip" data-topic="geo" onclick="selectTopic(this)">🌍 地缘</div>
+      <div class="chip" data-topic="fx" onclick="selectTopic(this)">💱 外汇商品</div>
+    </div>
+  </div>
+
+  <!-- QUICK STATS -->
+  <div class="stat-row" id="quickStats">
+    <div class="stat-card"><div class="stat-label">BTC</div><div class="stat-val" id="qs-btc">--</div><div class="stat-sub" id="qs-btc-chg">—</div></div>
+    <div class="stat-card"><div class="stat-label">ETH</div><div class="stat-val" id="qs-eth">--</div><div class="stat-sub" id="qs-eth-chg">—</div></div>
+    <div class="stat-card"><div class="stat-label">恐贪指数</div><div class="stat-val" id="qs-fg">--</div><div class="stat-sub" id="qs-fg-label">—</div></div>
+    <div class="stat-card"><div class="stat-label">市场情绪</div><div class="stat-val" id="qs-sentiment">--</div><div class="stat-sub" id="qs-market-trend">—</div></div>
+  </div>
+
+  <div class="grid-main">
+    <!-- LEFT -->
+    <div class="col-left">
+
+      <!-- X POST CARD -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title"><span class="card-title-icon">𝕏</span> X 投稿生成</div>
+            <div class="card-sub">100字以内 · 专业分析风格 · 随时生成</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary btn-sm" onclick="generatePost()">🔄 换一条</button>
+            <button class="btn btn-primary btn-sm" onclick="generatePost()">⚡ 生成</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="xpost-loading" id="postLoading"><div class="spinner"></div> 正在生成分析...</div>
+          <div id="postArea">
+            <div class="xpost-box empty" id="xpostText" contenteditable="true" onclick="clearPlaceholder(this)">点击「生成」按钮，根据最新行情自动生成 X 投稿，可手动编辑。</div>
+            <div class="xpost-meta">
+              <span class="char-count" id="charCount">— / 100 字</span>
+              <div class="btn-group">
+                <button class="btn btn-secondary btn-sm" onclick="copyPost()">📋 复制</button>
+                <button class="btn btn-ghost btn-sm" onclick="showPage('xpost', document.querySelector(\`.stab:nth-child(4)\`))">更多选项 →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYSIS CARD -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title"><span class="card-title-icon">🧠</span> 深度分析</div>
+            <div class="card-sub" id="analysisSub">基于实时资讯与行情数据</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="generateAnalysis()">⟳ 更新</button>
+        </div>
+        <div class="card-body">
+          <div id="analysisContent">
+            <div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">点击「生成」或「更新」获取深度分析</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEWS PREVIEW -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title"><span class="card-title-icon">📰</span> 最新资讯</div>
+            <div class="card-sub" id="newsCountLabel">加载中...</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary btn-sm" onclick="fetchNews()">⟳</button>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('news', document.querySelector('.stab:nth-child(2)'))">全部 →</button>
+          </div>
+        </div>
+        <div class="news-tabs" id="dashNewsTabs">
+          <button class="ntab active" onclick="filterDashNews(this,'all')">全部</button>
+          <button class="ntab" onclick="filterDashNews(this,'crypto')">加密</button>
+          <button class="ntab" onclick="filterDashNews(this,'macro')">宏观</button>
+          <button class="ntab" onclick="filterDashNews(this,'us-stock')">美股</button>
+          <button class="ntab" onclick="filterDashNews(this,'geo')">地缘</button>
+        </div>
+        <div class="loading-row" id="newsLoadingDash"><div class="spinner"></div> 正在获取资讯...</div>
+        <div class="news-list" id="dashNewsList"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="col-right">
+
+      <!-- CRYPTO PRICES -->
+      <div class="cpanel">
+        <div class="cpanel-head" onclick="togglePanel('cpCrypto','arCrypto')">
+          <div class="cpanel-title">₿ 加密货币</div>
+          <span id="arCrypto" class="cpanel-arrow">▼</span>
+        </div>
+        <div id="cpCrypto" class="cpanel-body">
+          <div class="loading-row" id="cryptoLoadingRow"><div class="spinner"></div> 加载中...</div>
+          <table class="ptable" id="cryptoTable" style="display:none"></table>
+        </div>
+      </div>
+
+      <!-- FEAR GREED -->
+      <div class="cpanel">
+        <div class="cpanel-head" onclick="togglePanel('cpFG','arFG')">
+          <div class="cpanel-title">😨 恐贪指数</div>
+          <span id="arFG" class="cpanel-arrow">▼</span>
+        </div>
+        <div id="cpFG" class="cpanel-body">
+          <div class="loading-row" id="fgLoadingRow"><div class="spinner"></div> 加载中...</div>
+          <div id="fgContent"></div>
+        </div>
+      </div>
+
+      <!-- CRYPTO HEATMAP -->
+      <div class="cpanel">
+        <div class="cpanel-head" onclick="togglePanel('cpHeat','arHeat')">
+          <div class="cpanel-title">🔥 热力图</div>
+          <span id="arHeat" class="cpanel-arrow">▼</span>
+        </div>
+        <div id="cpHeat" class="cpanel-body">
+          <div class="loading-row" id="heatLoadingRow"><div class="spinner"></div> 加载中...</div>
+          <div id="heatmapGrid" style="display:none" class="heatmap"></div>
+        </div>
+      </div>
+
+      <!-- STOCKS -->
+      <div class="cpanel">
+        <div class="cpanel-head" onclick="togglePanel('cpStocks','arStocks')">
+          <div class="cpanel-title">📊 美股指数</div>
+          <span id="arStocks" class="cpanel-arrow">▼</span>
+        </div>
+        <div id="cpStocks" class="cpanel-body">
+          <div class="loading-row" id="stockLoadingRow"><div class="spinner"></div> 加载中...</div>
+          <table class="ptable" id="stockTable" style="display:none"></table>
+        </div>
+      </div>
+
+      <!-- COMMODITIES -->
+      <div class="cpanel">
+        <div class="cpanel-head" onclick="togglePanel('cpComm','arComm')">
+          <div class="cpanel-title">🛢 商品 / 外汇</div>
+          <span id="arComm" class="cpanel-arrow">▼</span>
+        </div>
+        <div id="cpComm" class="cpanel-body">
+          <div class="loading-row" id="commLoadingRow"><div class="spinner"></div> 加载中...</div>
+          <table class="ptable" id="commTable" style="display:none"></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: NEWS
+══════════════════════════════════════════ -->
+<div id="page-news" class="page">
+<div class="wrap">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><span class="card-title-icon">📰</span> 全球资讯流</div>
+        <div class="card-sub" id="newsFullSub">来源：CoinTelegraph · Reuters · Decrypt · Investing.com</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="fetchNews()">⟳ 刷新</button>
+    </div>
+    <div class="news-tabs">
+      <button class="ntab active" onclick="filterFullNews(this,'all')">全部</button>
+      <button class="ntab" onclick="filterFullNews(this,'crypto')">₿ 加密</button>
+      <button class="ntab" onclick="filterFullNews(this,'macro')">🏛 宏观</button>
+      <button class="ntab" onclick="filterFullNews(this,'us-stock')">📈 美股</button>
+      <button class="ntab" onclick="filterFullNews(this,'geo')">🌍 地缘</button>
+      <button class="ntab" onclick="filterFullNews(this,'fx')">💱 外汇</button>
+    </div>
+    <div class="news-list" id="fullNewsList">
+      <div class="loading-row"><div class="spinner"></div> 正在获取资讯...</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: MARKETS
+══════════════════════════════════════════ -->
+<div id="page-markets" class="page">
+<div class="wrap">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="market-overview">
+    <!-- Full Crypto Table -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title"><span class="card-title-icon">₿</span> 加密货币市场</div>
+        <button class="btn btn-secondary btn-sm" onclick="fetchCrypto()">⟳</button>
+      </div>
+      <div id="marketsCryptoWrap">
+        <div class="loading-row"><div class="spinner"></div> 加载中...</div>
+      </div>
+    </div>
+    <!-- Right col -->
+    <div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><span class="card-title-icon">📊</span> 美股</div></div>
+        <div id="marketsStockWrap"><div class="loading-row"><div class="spinner"></div> 加载中...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title"><span class="card-title-icon">🛢</span> 商品 / 外汇</div></div>
+        <div id="marketsCommWrap"><div class="loading-row"><div class="spinner"></div> 加载中...</div></div>
+      </div>
+    </div>
+  </div>
+  <!-- Heatmap full -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="card-title-icon">🔥</span> 加密市场热力图</div>
+      <div class="card-sub">24H 涨跌幅</div>
+    </div>
+    <div id="marketsHeatWrap"><div class="loading-row"><div class="spinner"></div> 加载中...</div></div>
+  </div>
+  <!-- Fear Greed -->
+  <div class="card">
+    <div class="card-head"><div class="card-title"><span class="card-title-icon">😨</span> 恐贪指数</div></div>
+    <div id="marketsFGWrap"><div class="loading-row"><div class="spinner"></div> 加载中...</div></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: X POST
+══════════════════════════════════════════ -->
+<div id="page-xpost" class="page">
+<div class="wrap">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title"><span class="card-title-icon">𝕏</span> X 投稿生成器</div>
+        <div class="card-sub">100字以内 · 专业分析 · 非AI腔调</div>
+      </div>
+    </div>
+    <!-- Topic select -->
+    <div class="chips">
+      <div class="chip chip-all active" data-topic="all" onclick="selectTopicX(this)">🌐 全领域</div>
+      <div class="chip" data-topic="crypto" onclick="selectTopicX(this)">₿ 加密</div>
+      <div class="chip" data-topic="us-stock" onclick="selectTopicX(this)">📈 美股</div>
+      <div class="chip" data-topic="macro" onclick="selectTopicX(this)">🏛 宏观</div>
+      <div class="chip" data-topic="geo" onclick="selectTopicX(this)">🌍 地缘</div>
+      <div class="chip" data-topic="fx" onclick="selectTopicX(this)">💱 外汇</div>
+    </div>
+    <div class="card-body">
+      <div class="xpost-loading" id="postLoading2"><div class="spinner"></div> 正在生成...</div>
+      <div id="postArea2">
+        <div class="xpost-box" id="xpostText2" contenteditable="true">点击「生成」按钮获取投稿内容。</div>
+        <div class="xpost-meta">
+          <span class="char-count" id="charCount2">— / 100</span>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="generatePostFull()">🔄 换一条</button>
+            <button class="btn btn-primary" onclick="generatePostFull()">⚡ 生成</button>
+            <button class="btn btn-ghost" onclick="copyPost2()">📋 复制</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--bg3)">
+        <div class="card-title" style="margin-bottom:10px;font-size:13px">📌 投稿风格参考</div>
+        <div id="xStyleExamples"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: REPORT
+══════════════════════════════════════════ -->
+<div id="page-report" class="page">
+<div class="wrap">
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="generateMorningBrief()">🌅 生成早餐日报</button>
+    <button class="btn btn-secondary" onclick="generateNowReport()">⚡ 生成即时报告</button>
+    <button class="btn btn-ghost" onclick="printReport()">🖨 打印 / 保存PDF</button>
+  </div>
+  <div id="reportContent">
+    <div class="card">
+      <div class="card-body">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-text">点击「早餐日报」获取今日市场早报<br>点击「即时报告」生成当前时刻市场总结</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+'use strict';
+// ── SECURITY: Content Security helpers ──
+function sanitizeHTML(str) {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+function sanitizeURL(url) {
+  try {
+    const u = new URL(url);
+    return ['http:','https:'].includes(u.protocol) ? url : '#';
+  } catch { return '#'; }
+}
+
+// ── STATE ──
+let currentTopic = 'all';
+let currentTopicX = 'all';
+let cryptoData = [];
+let allNewsItems = [];
+let fearGreedValue = null;
+let _postVariant = 0;
+let _dataLoaded = false;
+
+// ── UTILS ──
+function showToast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), dur);
+}
+function updateNavTime() {
+  const n = new Date();
+  document.getElementById('navTime').textContent =
+    n.toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}) + ' ' +
+    n.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateNavTime, 1000); updateNavTime();
+
+function formatP(p) {
+  if (p >= 10000) return p.toLocaleString('en-US',{maximumFractionDigits:0});
+  if (p >= 1000) return p.toLocaleString('en-US',{maximumFractionDigits:1});
+  if (p >= 1) return p.toFixed(2);
+  return p.toFixed(4);
+}
+function formatMC(v) {
+  if (!v) return '--';
+  if (v >= 1e12) return '$'+(v/1e12).toFixed(2)+'T';
+  if (v >= 1e9) return '$'+(v/1e9).toFixed(1)+'B';
+  if (v >= 1e6) return '$'+(v/1e6).toFixed(0)+'M';
+  return '$'+v;
+}
+function chgBadge(pct) {
+  const c = pct >= 0 ? 'p-up' : 'p-dn';
+  const s = pct >= 0 ? '+' : '';
+  return `<span class="p-chg ${c}">${s}${pct.toFixed(2)}%</span>`;
+}
+function chgCls(pct) { return pct >= 0 ? 'stat-up' : 'stat-dn'; }
+
+// ── PAGE NAV ──
+function showPage(id, tabEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (tabEl) tabEl.classList.add('active');
+}
+
+// ── PANEL TOGGLE ──
+function togglePanel(bodyId, arrowId) {
+  const b = document.getElementById(bodyId);
+  const a = document.getElementById(arrowId);
+  b.classList.toggle('open');
+  a.classList.toggle('open');
+}
+
+// ── TOPIC SELECT ──
+function selectTopic(el) {
+  document.querySelectorAll('.chip[data-topic]').forEach(c => {
+    if (c.closest('#page-dashboard')) c.classList.remove('active');
+  });
+  el.classList.add('active');
+  currentTopic = el.dataset.topic;
+}
+function selectTopicX(el) {
+  document.querySelectorAll('#page-xpost .chip[data-topic]').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentTopicX = el.dataset.topic;
+}
+
+// ── CHAR COUNT ──
+function updateCharCount(elId, countId) {
+  const el = document.getElementById(elId);
+  const cnt = document.getElementById(countId);
+  if (!el || !cnt) return;
+  const n = el.textContent.length;
+  cnt.textContent = `${n} / 100 字`;
+  cnt.className = 'char-count ' + (n <= 80 ? 'ok' : n <= 100 ? 'warn' : 'over');
+}
+document.addEventListener('input', e => {
+  if (e.target.id === 'xpostText') updateCharCount('xpostText','charCount');
+  if (e.target.id === 'xpostText2') updateCharCount('xpostText2','charCount2');
+});
+function clearPlaceholder(el) {
+  if (el.classList.contains('empty')) { el.textContent = ''; el.classList.remove('empty'); }
+}
+function copyPost() {
+  const t = document.getElementById('xpostText').textContent.trim();
+  if (!t || t.length < 5) { showToast('⚠ 先生成投稿内容'); return; }
+  navigator.clipboard.writeText(t).then(() => showToast('✅ 已复制到剪贴板'));
+}
+function copyPost2() {
+  const t = document.getElementById('xpostText2').textContent.trim();
+  navigator.clipboard.writeText(t).then(() => showToast('✅ 已复制'));
+}
+
+// ══════════════════════════════════════════
+// CRYPTO DATA (CoinGecko free)
+// ══════════════════════════════════════════
+async function fetchCrypto() {
+  try {
+    const ids = 'bitcoin,ethereum,binancecoin,solana,ripple,dogecoin,cardano,avalanche-2,chainlink,polkadot,sui,pepe';
+    const r = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=12&sparkline=false&price_change_percentage=24h`);
+    if (!r.ok) throw new Error('CoinGecko error');
+    cryptoData = await r.json();
+    renderCrypto();
+    updateTicker();
+    updateQuickStats();
+  } catch(e) {
+    ['cryptoLoadingRow'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '<span style="color:var(--red);padding:12px;font-size:12px">⚠ 加密数据加载失败 — 请检查网络</span>';
+    });
+  }
+}
+
+const SYM = {bitcoin:'BTC',ethereum:'ETH',binancecoin:'BNB',solana:'SOL',ripple:'XRP',dogecoin:'DOGE',cardano:'ADA','avalanche-2':'AVAX',chainlink:'LINK',polkadot:'DOT',sui:'SUI',pepe:'PEPE'};
+
+function renderCrypto() {
+  const makeTable = (data) => {
+    const rows = data.map(c => {
+      const chg = c.price_change_percentage_24h || 0;
+      return `<tr>
+        <td><div class="p-sym">${SYM[c.id]||c.symbol.toUpperCase()}</div><div class="p-name">${c.name}</div></td>
+        <td class="p-price">$${formatP(c.current_price)}</td>
+        <td>${chgBadge(chg)}</td>
+        <td class="p-mc">${formatMC(c.market_cap)}</td>
+      </tr>`;
+    }).join('');
+    return `<table class="ptable"><tr><th>代币</th><th>价格</th><th>24H</th><th>市值</th></tr>${rows}</table>`;
+  };
+
+  // Sidebar
+  document.getElementById('cryptoLoadingRow').style.display = 'none';
+  const sideTable = document.getElementById('cryptoTable');
+  sideTable.style.display = '';
+  const sideRows = cryptoData.slice(0,8).map(c => {
+    const chg = c.price_change_percentage_24h || 0;
+    return `<tr>
+      <td><div class="p-sym">${SYM[c.id]||c.symbol.toUpperCase()}</div></td>
+      <td class="p-price">$${formatP(c.current_price)}</td>
+      <td>${chgBadge(chg)}</td>
+    </tr>`;
+  }).join('');
+  sideTable.innerHTML = `<tr><th>代币</th><th>价格</th><th>24H</th></tr>${sideRows}`;
+
+  // Markets page
+  const mw = document.getElementById('marketsCryptoWrap');
+  if (mw) mw.innerHTML = makeTable(cryptoData);
+
+  // Heatmap
+  renderHeatmap(cryptoData);
+}
+
+function renderHeatmap(data) {
+  const grids = ['heatmapGrid','marketsHeatWrap'];
+  grids.forEach(gid => {
+    const g = document.getElementById(gid);
+    if (!g) return;
+    if (gid === 'heatLoadingRow') return;
+    g.innerHTML = '';
+    if (gid === 'heatmapGrid') {
+      document.getElementById('heatLoadingRow').style.display = 'none';
+      g.style.display = 'grid';
+    } else {
+      g.innerHTML = '<div class="heatmap">';
+    }
+    const container = gid === 'heatmapGrid' ? g : g;
+    const cells = data.map(c => {
+      const chg = c.price_change_percentage_24h || 0;
+      const intensity = Math.min(Math.abs(chg) / 8, 1);
+      const bg = chg > 0
+        ? `rgba(31,107,66,${0.25+intensity*0.75})`
+        : chg < 0
+        ? `rgba(184,34,34,${0.25+intensity*0.75})`
+        : 'rgba(120,110,100,0.3)';
+      const tc = intensity > 0.45 ? '#fff' : '#222';
+      const sym = SYM[c.id] || c.symbol.toUpperCase();
+      return `<div class="hm-cell" style="background:${bg};color:${tc}" title="${c.name}: ${chg>=0?'+':''}${chg.toFixed(2)}%">
+        <div class="hm-sym">${sym}</div>
+        <div class="hm-pct">${chg>=0?'+':''}${chg.toFixed(1)}%</div>
+      </div>`;
+    }).join('');
+
+    if (gid === 'heatmapGrid') {
+      container.innerHTML = cells;
+    } else {
+      container.innerHTML = `<div class="heatmap">${cells}</div>`;
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// FEAR & GREED
+// ══════════════════════════════════════════
+async function fetchFearGreed() {
+  try {
+    const r = await fetch('https://api.alternative.me/fng/?limit=1');
+    const d = await r.json();
+    const val = parseInt(d.data[0].value);
+    const label = d.data[0].value_classification;
+    fearGreedValue = val;
+
+    let color, emoji;
+    if (val<=20){color='#b82222';emoji='😱';}
+    else if(val<=40){color='#d45a00';emoji='😨';}
+    else if(val<=60){color='#b8960c';emoji='😐';}
+    else if(val<=80){color='#1f6b42';emoji='😊';}
+    else{color='#0d7860';emoji='🤑';}
+
+    const fgHTML = `<div class="fg-wrap">
+      <div class="fg-num" style="color:${color}">${val}</div>
+      <div class="fg-label" style="color:${color}">${emoji} ${label}</div>
+      <div class="fg-bar-bg"><div class="fg-bar-marker" style="left:${val}%"></div></div>
+      <div class="fg-range"><span>极度恐慌</span><span>中性</span><span>极度贪婪</span></div>
+    </div>`;
+
+    document.getElementById('fgLoadingRow').style.display = 'none';
+    document.getElementById('fgContent').innerHTML = fgHTML;
+    const mfg = document.getElementById('marketsFGWrap');
+    if (mfg) mfg.innerHTML = fgHTML;
+
+    // Quick stat
+    document.getElementById('qs-fg').textContent = val;
+    document.getElementById('qs-fg').style.color = color;
+    document.getElementById('qs-fg-label').textContent = label;
+    document.getElementById('qs-fg-label').className = 'stat-sub';
+  } catch(e) {
+    document.getElementById('fgLoadingRow').style.display = 'none';
+    document.getElementById('fgContent').innerHTML = '<div style="padding:12px;color:var(--red);font-size:12px">⚠ 数据加载失败</div>';
+  }
+}
+
+// ══════════════════════════════════════════
+// STOCKS (Stooq via allorigins)
+// ══════════════════════════════════════════
+async function fetchStooq(sym) {
+  try {
+    const url = `https://stooq.com/q/l/?s=${encodeURIComponent(sym)}&f=sd2t2ohlcv&h&e=csv`;
+    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const r = await fetch(proxy, {signal: AbortSignal.timeout(6000)});
+    const txt = await r.text();
+    const lines = txt.trim().split('\n');
+    if (lines.length < 2) return null;
+    const p = lines[1].split(',');
+    const close = parseFloat(p[4]), open = parseFloat(p[3]);
+    if (isNaN(close)) return null;
+    return {close, open, chg: close-open, chgPct: ((close-open)/open)*100};
+  } catch { return null; }
+}
+
+async function fetchStocks() {
+  const stocks = [
+    {sym:'^spx', name:'S&P 500', label:'SPX'},
+    {sym:'^ndx', name:'NASDAQ 100', label:'NDX'},
+    {sym:'^dji', name:'道琼斯', label:'DJI'},
+    {sym:'^vix', name:'恐慌指数 VIX', label:'VIX'},
+  ];
+  const results = await Promise.all(stocks.map(s => fetchStooq(s.sym).then(d => ({...s, d}))));
+
+  const makeRow = ({label, name, d}) => {
+    if (!d) return `<tr><td><div class="p-sym">${label}</div><div class="p-name">${name}</div></td><td colspan="3" style="color:var(--text4);font-size:11px">数据获取中</td></tr>`;
+    return `<tr>
+      <td><div class="p-sym">${label}</div><div class="p-name">${name}</div></td>
+      <td class="p-price">${d.close.toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:2})}</td>
+      <td>${chgBadge(d.chgPct)}</td>
+      <td class="p-mc">${d.chg>=0?'+':''}${d.chg.toFixed(1)}</td>
+    </tr>`;
+  };
+
+  const tableHTML = `<table class="ptable"><tr><th>指数</th><th>价格</th><th>涨跌%</th><th>涨跌点</th></tr>${results.map(makeRow).join('')}</table>
+    <div style="padding:8px 12px;font-size:10px;color:var(--text4)">来源：Stooq · 数据仅供参考</div>`;
+
+  document.getElementById('stockLoadingRow').style.display = 'none';
+  document.getElementById('stockTable').style.display = '';
+  document.getElementById('stockTable').outerHTML; // force
+  const st = document.getElementById('stockTable');
+  st.style.display = 'none';
+
+  // Replace with div
+  const stockWrap = document.getElementById('stockLoadingRow').parentElement;
+  stockWrap.innerHTML = tableHTML;
+
+  const msw = document.getElementById('marketsStockWrap');
+  if (msw) msw.innerHTML = tableHTML;
+
+  // Update ticker
+  const spx = results.find(r => r.label === 'SPX');
+  if (spx?.d) {
+    const cls = spx.d.chgPct >= 0 ? 'ticker-up' : 'ticker-dn';
+    const s = spx.d.chgPct >= 0 ? '+' : '';
+    ['tk-spx','tk-spx2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = `${spx.d.close.toFixed(0)} (${s}${spx.d.chgPct.toFixed(2)}%)`; el.className = cls; }
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+// COMMODITIES
+// ══════════════════════════════════════════
+async function fetchCommodities() {
+  const comms = [
+    {sym:'gc.f', name:'黄金', label:'GOLD', unit:'$/oz'},
+    {sym:'cl.f', name:'原油 WTI', label:'WTI', unit:'$/bbl'},
+    {sym:'eurusd', name:'欧元/美元', label:'EUR/USD', unit:''},
+    {sym:'dxy', name:'美元指数', label:'DXY', unit:''},
+    {sym:'gc.f', name:'白银 (近似)', label:'SILVER', unit:''},
+  ];
+  // fetch only first 4
+  const results = await Promise.all(comms.slice(0,4).map(c => fetchStooq(c.sym).then(d => ({...c, d}))));
+
+  const makeRow = ({label, name, d, unit}) => {
+    if (!d) return `<tr><td><div class="p-sym">${label}</div><div class="p-name">${name}</div></td><td colspan="3" style="color:var(--text4);font-size:11px">获取中</td></tr>`;
+    const priceStr = d.close >= 100 ? d.close.toLocaleString('en-US',{maximumFractionDigits:2}) : d.close.toFixed(4);
+    return `<tr>
+      <td><div class="p-sym">${label}</div><div class="p-name">${name} ${unit}</div></td>
+      <td class="p-price">${priceStr}</td>
+      <td>${chgBadge(d.chgPct)}</td>
+      <td class="p-mc">${d.chg>=0?'+':''}${d.chg.toFixed(2)}</td>
+    </tr>`;
+  };
+
+  const tableHTML = `<table class="ptable"><tr><th>品种</th><th>价格</th><th>涨跌%</th><th>涨跌值</th></tr>${results.map(makeRow).join('')}</table>
+    <div style="padding:8px 12px;font-size:10px;color:var(--text4)">来源：Stooq · 数据仅供参考</div>`;
+
+  const commWrap = document.getElementById('commLoadingRow')?.parentElement;
+  if (commWrap) commWrap.innerHTML = tableHTML;
+  const mcw = document.getElementById('marketsCommWrap');
+  if (mcw) mcw.innerHTML = tableHTML;
+
+  // Ticker
+  const gold = results.find(r => r.label === 'GOLD');
+  const oil = results.find(r => r.label === 'WTI');
+  const dxy = results.find(r => r.label === 'DXY');
+  const setTicker = (id1, id2, d, digits=2) => {
+    if (!d?.d) return;
+    const cls = d.d.chgPct >= 0 ? 'ticker-up' : 'ticker-dn';
+    const s = d.d.chgPct >= 0 ? '+' : '';
+    const p = d.d.close >= 100 ? d.d.close.toFixed(digits) : d.d.close.toFixed(4);
+    [id1,id2].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = `${p} (${s}${d.d.chgPct.toFixed(2)}%)`; el.className = cls; }
+    });
+  };
+  setTicker('tk-gold','tk-gold2', gold, 0);
+  setTicker('tk-oil','tk-oil2', oil, 2);
+  setTicker('tk-dxy','tk-dxy2', dxy, 2);
+}
+
+// ══════════════════════════════════════════
+// UPDATE TICKER (crypto)
+// ══════════════════════════════════════════
+function updateTicker() {
+  const ids = [{id:'bitcoin',t1:'tk-btc',t2:'tk-btc2'},{id:'ethereum',t1:'tk-eth',t2:'tk-eth2'},{id:'solana',t1:'tk-sol',t2:'tk-sol2'}];
+  ids.forEach(({id, t1, t2}) => {
+    const c = cryptoData.find(x => x.id === id);
+    if (!c) return;
+    const chg = c.price_change_percentage_24h || 0;
+    const cls = chg >= 0 ? 'ticker-up' : 'ticker-dn';
+    const s = chg >= 0 ? '+' : '';
+    const txt = `$${formatP(c.current_price)} (${s}${chg.toFixed(2)}%)`;
+    [t1,t2].forEach(id => { const el=document.getElementById(id); if(el){el.textContent=txt;el.className=cls;} });
+  });
+}
+
+// ══════════════════════════════════════════
+// QUICK STATS
+// ══════════════════════════════════════════
+function updateQuickStats() {
+  const btc = cryptoData.find(c => c.id === 'bitcoin');
+  const eth = cryptoData.find(c => c.id === 'ethereum');
+  if (btc) {
+    document.getElementById('qs-btc').textContent = '$'+formatP(btc.current_price);
+    const chg = btc.price_change_percentage_24h||0;
+    document.getElementById('qs-btc-chg').textContent = (chg>=0?'+':'')+chg.toFixed(2)+'%';
+    document.getElementById('qs-btc-chg').className = 'stat-sub '+chgCls(chg);
+  }
+  if (eth) {
+    document.getElementById('qs-eth').textContent = '$'+formatP(eth.current_price);
+    const chg = eth.price_change_percentage_24h||0;
+    document.getElementById('qs-eth-chg').textContent = (chg>=0?'+':'')+chg.toFixed(2)+'%';
+    document.getElementById('qs-eth-chg').className = 'stat-sub '+chgCls(chg);
+  }
+  const ups = cryptoData.filter(c=>(c.price_change_percentage_24h||0)>0).length;
+  const total = cryptoData.length;
+  const sentiment = ups >= Math.ceil(total*0.7) ? '🟢 多头' : ups <= Math.floor(total*0.3) ? '🔴 空头' : '🟡 分化';
+  document.getElementById('qs-sentiment').textContent = sentiment;
+  document.getElementById('qs-market-trend').textContent = `${ups}/${total} 上涨`;
+  document.getElementById('qs-market-trend').className = 'stat-sub stat-neutral';
+}
+
+// ══════════════════════════════════════════
+// NEWS RSS
+// ══════════════════════════════════════════
+const RSS_SOURCES = [
+  {url:'https://cointelegraph.com/rss', cat:'crypto', src:'CoinTelegraph'},
+  {url:'https://decrypt.co/feed', cat:'crypto', src:'Decrypt'},
+  {url:'https://cryptoslate.com/feed/', cat:'crypto', src:'CryptoSlate'},
+  {url:'https://feeds.reuters.com/reuters/businessNews', cat:'macro', src:'Reuters Business'},
+  {url:'https://feeds.reuters.com/reuters/topNews', cat:'geo', src:'Reuters World'},
+  {url:'https://www.investing.com/rss/news_301.rss', cat:'us-stock', src:'Investing.com'},
+  {url:'https://www.investing.com/rss/news_14.rss', cat:'macro', src:'Investing.com Macro'},
+  {url:'https://www.investing.com/rss/news_25.rss', cat:'fx', src:'Investing.com FX'},
+  {url:'https://feeds.a.dj.com/rss/RSSMarketsMain.xml', cat:'macro', src:'WSJ Markets'},
+  {url:'https://feeds.a.dj.com/rss/WSJcomUSBusiness.xml', cat:'us-stock', src:'WSJ Business'},
+];
+
+async function fetchOneRSS(source) {
+  try {
+    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(source.url)}`;
+    const r = await fetch(proxy, {signal: AbortSignal.timeout(8000)});
+    const txt = await r.text();
+    const xml = new DOMParser().parseFromString(txt, 'text/xml');
+    const items = xml.querySelectorAll('item');
+    const out = [];
+    items.forEach((item, i) => {
+      if (i >= 6) return;
+      const title = item.querySelector('title')?.textContent?.trim() || '';
+      let link = item.querySelector('link')?.textContent?.trim() || '';
+      if (!link) link = item.querySelector('link')?.nextSibling?.textContent?.trim() || '';
+      const desc = (item.querySelector('description')?.textContent || '').replace(/<[^>]*>/g,'').substring(0,150).trim();
+      const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
+      if (title && title.length > 5) {
+        out.push({title: sanitizeHTML(title), link: sanitizeURL(link), desc: sanitizeHTML(desc), pubDate, cat: source.cat, src: source.src});
+      }
+    });
+    return out;
+  } catch { return []; }
+}
+
+async function fetchNews() {
+  document.getElementById('newsLoadingDash').style.display = 'flex';
+  document.getElementById('dashNewsList').innerHTML = '';
+  document.getElementById('fullNewsList').innerHTML = '<div class="loading-row"><div class="spinner"></div> 正在获取资讯...</div>';
+
+  const results = await Promise.allSettled(RSS_SOURCES.map(s => fetchOneRSS(s)));
+  let items = [];
+  results.forEach(r => { if (r.status === 'fulfilled') items = items.concat(r.value); });
+  items.sort((a,b) => new Date(b.pubDate||0) - new Date(a.pubDate||0));
+  allNewsItems = items;
+
+  document.getElementById('newsLoadingDash').style.display = 'none';
+  document.getElementById('newsCountLabel').textContent = `${items.length} 条 · ${new Date().toLocaleTimeString('zh-CN')} 更新`;
+  document.getElementById('newsFullSub').textContent = `共 ${items.length} 条 · 来源：WSJ · Reuters · CoinTelegraph · Decrypt · Investing.com`;
+
+  renderDashNews(items, 'all');
+  renderFullNews(items, 'all');
+}
+
+const BADGE_MAP = {
+  crypto:{label:'CRYPTO',cls:'b-crypto'},
+  macro:{label:'宏观',cls:'b-macro'},
+  'us-stock':{label:'美股',cls:'b-stock'},
+  geo:{label:'地缘',cls:'b-geo'},
+  fx:{label:'外汇',cls:'b-fx'},
+};
+
+function newsItemHTML(item) {
+  const b = BADGE_MAP[item.cat] || BADGE_MAP['macro'];
+  const t = item.pubDate ? new Date(item.pubDate).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+  return `<div class="news-item" data-cat="${item.cat}">
+    <span class="news-badge ${b.cls}">${b.label}</span>
+    <div class="news-content">
+      <div class="news-title"><a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a></div>
+      ${item.desc ? `<div class="news-desc">${item.desc}</div>` : ''}
+      <div class="news-foot">
+        <span class="news-src">${item.src}</span>
+        <span class="news-time">${t}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderDashNews(items, cat) {
+  const el = document.getElementById('dashNewsList');
+  const filtered = cat === 'all' ? items : items.filter(i => i.cat === cat);
+  el.innerHTML = filtered.slice(0,12).map(newsItemHTML).join('') ||
+    '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暂无相关资讯</div></div>';
+}
+
+function renderFullNews(items, cat) {
+  const el = document.getElementById('fullNewsList');
+  const filtered = cat === 'all' ? items : items.filter(i => i.cat === cat);
+  el.innerHTML = filtered.slice(0,50).map(newsItemHTML).join('') ||
+    '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暂无相关资讯</div></div>';
+}
+
+function filterDashNews(tabEl, cat) {
+  document.querySelectorAll('#dashNewsTabs .ntab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  renderDashNews(allNewsItems, cat);
+}
+
+function filterFullNews(tabEl, cat) {
+  document.querySelectorAll('#page-news .news-tabs .ntab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  renderFullNews(allNewsItems, cat);
+}
+
+// ══════════════════════════════════════════
+// CONTENT ENGINE (Local — no external AI API)
+// ══════════════════════════════════════════
+function extractSignals(titles) {
+  const joined = titles.join(' ').toLowerCase();
+  return {
+    war:      /war|conflict|strike|attack|military|sanction|霍尔木兹|战争|伊朗|iran|gaza|ukraine|geopolit/i.test(joined),
+    fed:      /fed|fomc|rate|inflation|cpi|pce|powell|interest|通胀|利率|美联储|dovish|hawkish/i.test(joined),
+    trade:    /tariff|trade war|china|关税|贸易|export restriction/i.test(joined),
+    oil:      /oil|crude|opec|energy|petroleum|原油|油价/i.test(joined),
+    gold:     /gold|黄金|precious|safe.haven/i.test(joined),
+    btcBull:  /bitcoin surge|btc rise|rally|record|all.time|bull|breakout/i.test(joined),
+    btcBear:  /bitcoin fall|btc drop|crash|dump|bear|correction|liquidat/i.test(joined),
+    regulation:/sec|cftc|regulation|ban|法规|监管|compliance/i.test(joined),
+    recession:/recession|slowdown|gdp|衰退|放缓|stagflat/i.test(joined),
+    etf:      /etf|institutional|fund|机构|blackrock|fidelity/i.test(joined),
+    earnings: /earnings|revenue|profit|quarter|财报/i.test(joined),
+    debt:     /debt|deficit|treasury|yield|国债|财政/i.test(joined),
+  };
+}
+
+function getSnap() {
+  const snap = {btcPrice:null, btcChg:null, ethPrice:null, ethChg:null, solChg:null, sentiment:'', ups:0};
+  if (!cryptoData.length) return snap;
+  const btc = cryptoData.find(c=>c.id==='bitcoin');
+  const eth = cryptoData.find(c=>c.id==='ethereum');
+  const sol = cryptoData.find(c=>c.id==='solana');
+  if (btc) { snap.btcPrice=formatP(btc.current_price); snap.btcChg=(btc.price_change_percentage_24h||0).toFixed(1); }
+  if (eth) { snap.ethPrice=formatP(eth.current_price); snap.ethChg=(eth.price_change_percentage_24h||0).toFixed(1); }
+  if (sol) snap.solChg=(sol.price_change_percentage_24h||0).toFixed(1);
+  snap.ups = cryptoData.filter(c=>(c.price_change_percentage_24h||0)>0).length;
+  const total = cryptoData.length;
+  snap.sentiment = snap.ups >= Math.ceil(total*0.65) ? '普涨' : snap.ups <= Math.floor(total*0.35) ? '普跌' : '分化';
+  snap.btcDir = parseFloat(snap.btcChg) >= 0 ? '走高' : '回落';
+  return snap;
+}
+
+function pickRotate(arr) {
+  _postVariant = (_postVariant + 1) % arr.length;
+  return arr[_postVariant];
+}
+
+function buildPost(topic) {
+  const snap = getSnap();
+  const sig = extractSignals(allNewsItems.slice(0,15).map(n=>n.title));
+  const hasBtc = !!snap.btcPrice;
+  const btcStr = hasBtc ? `$BTC ${snap.btcDir} ${parseFloat(snap.btcChg)>=0?'+':''}${snap.btcChg}%，报 $${snap.btcPrice}` : '$BTC 横盘';
+
+  let candidates = [];
+
+  if (topic === 'crypto' || topic === 'all') {
+    if (sig.war && hasBtc) candidates.push(
+      `地缘局势还没落定，${btcStr}。加密周末流动性薄，波动看起来大，实际方向很模糊。真正定调的是周一亚洲盘开盘后的成交量。现在守好仓位比抢反弹重要。`,
+      `${btcStr}，整体${snap.sentiment}。战争溢价压着风险偏好，机构周末不会大举建仓。把注意力放在油价和美元走势上——这两个才是下一步的风向标。`,
+      `霍尔木兹风险还在，${btcStr}。加密不是避险资产，但也没跟着跌太多，说明底部有人在接。关键支撑守住了，等消息面稳定再谈方向。`
+    );
+    else if (sig.fed && hasBtc) candidates.push(
+      `联储不急着降息，市场在消化这个现实。${btcStr}，${snap.sentiment}格局。ETH $${snap.ethPrice||'--'}。高利率持续时间超预期，流动性溢价会持续压制加密估值，这点要有心理准备。`,
+      `通胀黏性 vs 降息预期——这个拉锯没结束。${btcStr}，看不到大行情。ETH ${snap.ethChg>=0?'+':''}${snap.ethChg}%，跟着走。等数据给方向，比现在硬猜强多了。`,
+      `${btcStr}，整体${snap.sentiment}。美联储窗口期是加密的难熬时段——大资金不敢重仓，散户情绪也容易随消息面飘。保持轻仓，等方向明确再说。`
+    );
+    else if (sig.etf) candidates.push(
+      `机构资金在动。${btcStr}，ETF 流入数据值得关注。ETH $${snap.ethPrice||'--'}。这一轮如果是机构主导的行情，那波动会比散户主导的时候小，但持续性更强。`,
+      `${btcStr}，整体${snap.sentiment}。ETF 资金持续进场是这轮最大的结构性变化，和 2021 年靠散户情绪驱动的行情不一样。逻辑不同，节奏也不一样。`
+    );
+    else if (hasBtc) candidates.push(
+      `${btcStr}，ETH $${snap.ethPrice||'--'}，整体${snap.sentiment}。缺少强催化剂，市场靠存量在撑。成交量是关键——量不放大，现有位置的趋势可信度有限。`,
+      `${btcStr}，整体${snap.sentiment}。没有新叙事推动的行情，容易反复。不追高不摸底，等有效突破再入场，是这种横盘环境里最省力的策略。`,
+      `加密市场${snap.sentiment}，${btcStr}。${snap.ups}/${cryptoData.length} 个标的上涨，分化不严重。这种格局通常说明主力资金没有明确做方向，继续观望为主。`
+    );
+  }
+
+  if (!candidates.length && topic === 'us-stock') candidates.push(
+    `美股在宏观数据和地缘风险之间反复拉锯。降息预期每松动一次，纳指就弹一下；通胀数据一超预期，马上又跌回去。这种市场，频繁操作成本很高，做波段不如拿住逻辑清晰的标的。`,
+    `科技股的估值压力还在，高利率环境下 PE 扩张空间有限。财报季是下一个关键节点——盈利能不能跑赢预期，决定了这轮反弹有没有延续性。`,
+    `美股当前不是方向不好，是节奏太难把握。宏观数据、联储表态、地缘风险轮番出现，每次都引发超调。与其追短线，不如等一个清晰的宏观信号。`
+  );
+
+  if (!candidates.length && topic === 'macro') candidates.push(
+    `当前最大的宏观矛盾：增长在放缓，但通胀还没完全降温。美联储夹在中间，既不能太鸽，也不能太鹰。这种摇摆周期里，资产定价本来就混乱，不用过度解读每一次波动。`,
+    `滞胀的轮廓越来越清晰——GDP 增速在降，CPI 降不下去。历史上这种组合对股债都不友好，黄金和大宗商品相对抗跌。配置上要想清楚自己在对冲什么风险。`,
+    `全球宏观周期正在分化：美国增长韧性，欧洲和中国面临更大下行压力。这种分化会在外汇市场体现得最直接——美元相对强势的格局短期难以逆转。`
+  );
+
+  if (!candidates.length && topic === 'geo') candidates.push(
+    `地缘风险溢价是当前资产定价里最难量化的变量。油价是最直接的晴雨表，霍尔木兹局势每次升温都会在能源市场留下印记。跟踪这个比看K线图更有信息含量。`,
+    `战争对市场的冲击往往分两阶段：第一反应是恐慌性抛售，然后市场学会定价新的均衡。现在问题是这轮不确定性的持续时间比以往更长，市场在等一个明确的去向。`
+  );
+
+  if (!candidates.length && topic === 'fx') candidates.push(
+    `美元强势周期还没结束，核心原因是美联储降息时间表比其他央行推得更晚。DXY 强，非美货币就会持续承压。黄金在这种环境下两难：通胀对冲需求 vs 高实际利率的压制。`,
+    `原油和地缘绑在一起，汇市跟着走。避险情绪高涨时，美元和日元会先跑；若局势缓和，高息货币和新兴市场货币有补涨逻辑。当下先看油价怎么走。`
+  );
+
+  // Fallback
+  if (!candidates.length) {
+    const fb = hasBtc ? `$BTC $${snap.btcPrice} (${parseFloat(snap.btcChg)>=0?'+':''}${snap.btcChg}%)，整体${snap.sentiment}。` : '';
+    candidates.push(`${fb}当前市场观望气氛浓，增量资金有限。操作上轻仓等待清晰信号优于重仓博弈，节奏比判断更重要。`);
+  }
+
+  let post = pickRotate(candidates);
+
+  // Hard limit 100 chars
+  if (post.length > 100) {
+    const cut = post.substring(0, 100);
+    const puncts = ['。','！','？','，','、'];
+    let lastIdx = -1;
+    for (const p of puncts) {
+      const i = cut.lastIndexOf(p);
+      if (i > lastIdx && i > 55) lastIdx = i;
+    }
+    post = lastIdx > 55 ? cut.substring(0, lastIdx+1) : cut.substring(0, 97) + '…';
+  }
+
+  return post;
+}
+
+function buildAnalysis(topic) {
+  const snap = getSnap();
+  const sig = extractSignals(allNewsItems.slice(0,18).map(n=>n.title));
+  const topicLabel = {all:'全领域宏观',crypto:'加密货币',  'us-stock':'美股', macro:'宏观经济', geo:'地缘政治', fx:'外汇商品'}[topic]||'市场';
+
+  // CONTRADICTION
+  let contra = '';
+  if (sig.war && sig.fed) contra = `地缘冲突与货币政策同步施压，市场面临双重不确定性。战争风险推升避险需求，但美联储高利率环境限制了资金流向风险资产的空间。两个因素叠加，短期方向极难判断。`;
+  else if (sig.fed && sig.recession) contra = `"预防性降息"与"通胀黏性"的矛盾在升温。经济数据开始走软，但物价还没降到联储舒适区。如果硬等通胀达标再降息，衰退风险会先来；如果提前降，通胀可能反弹。`;
+  else if (sig.war) contra = `地缘局势制造了不确定性溢价，但市场已经有一定消化能力。真正的矛盾在于：战争是短期冲击还是会改变能源、供应链的中期结构？不同答案对应完全不同的资产配置逻辑。`;
+  else if (sig.fed) contra = `通胀降温速度比联储预期慢，降息时间表一再后推。市场的矛盾是：估值里已经定价了降息预期，但实际降息迟迟不来，导致风险资产反复面临估值压力。`;
+  else if (sig.trade) contra = `贸易摩擦的不确定性正在压制企业投资意愿和消费者信心。关税政策的范围和力度还未落地，市场处于"等待确认"状态，方向性资金不敢轻易下注。`;
+  else contra = `增量资金有限，存量博弈加剧。在没有强催化剂的情况下，市场容易形成自我实现的震荡——多空双方都在等对方先动，导致波动加大但方向不明。`;
+
+  // LOGIC
+  let logic = '';
+  const btcPart = snap.btcPrice ? `$BTC $${snap.btcPrice} (${parseFloat(snap.btcChg)>=0?'+':''}${snap.btcChg}%)，` : '';
+  if (sig.etf && snap.btcPrice) logic = `${btcPart}机构 ETF 资金仍在持续流入，是本轮最重要的结构性支撑。这和 2021 年散户情绪驱动的行情有本质区别——机构进出节奏慢但量大，不容易被短期消息面带跑。当前整体${snap.sentiment}，主导逻辑是资金面而非叙事面。`;
+  else if (sig.war) logic = `${btcPart}风险偏好受到地缘局势压制。油价是当前最敏感的定价资产，其他风险资产跟着走。加密市场${snap.sentiment}，短期内更多是情绪传导，而非独立的基本面逻辑在主导。`;
+  else if (sig.fed) logic = `${btcPart}整体${snap.sentiment}。美联储政策路径是当前定价主线——每次就业和通胀数据出来，市场都要重新定价降息预期，引发资产价格剧烈波动。技术面意义相对弱化，宏观面才是决定性的。`;
+  else if (snap.btcPrice) logic = `${btcPart}整体${snap.sentiment}，${snap.ups}/${cryptoData.length} 个主要标的收涨。当前行情缺少强叙事，价格运动以技术面和短期情绪为主。成交量是判断趋势有效性的关键指标，量能不配合的突破可信度低。`;
+  else logic = `当前${topicLabel}行情由宏观情绪主导，基本面驱动力相对弱。流动性环境、美元走向和地缘风险构成三角压力，缺少任何一个缓解，风险资产都难有持续性行情。`;
+
+  // RISKS
+  const riskList = [];
+  if (sig.war) riskList.push('地缘局势超预期升级，油价暴涨触发通胀二次反弹');
+  if (sig.fed) riskList.push('通胀数据超预期，美联储被迫维持更长高利率');
+  if (sig.trade) riskList.push('关税政策落地范围扩大，全球供应链受冲击');
+  if (sig.recession) riskList.push('经济数据持续走弱，衰退预期升温压制风险资产');
+  if (sig.regulation) riskList.push('监管政策收紧，合规成本上升');
+  riskList.push('流动性突然收缩，引发连锁去杠杆');
+  if (riskList.length < 3) riskList.push('宏观数据超预期偏差，触发程序化大幅波动');
+  const risks = riskList.slice(0,3).map((r,i)=>`${['①','②','③'][i]} ${r}`).join('；') + '。';
+
+  // OUTLOOK
+  const now = new Date();
+  const dayStr = ['日','一','二','三','四','五','六'][now.getDay()];
+  let outlook = '';
+  if (sig.war) outlook = `周${dayStr}前后密切跟踪地缘消息面。若局势出现缓和信号，风险资产可以期待修复性反弹；若升级，建议回避高波动资产，转向防御性配置。油价是最直接的前瞻信号，优先盯住。`;
+  else if (sig.fed) outlook = `未来1-2周，核心通胀数据和美联储官员表态是最大变量。数据偏软→降息预期修复→风险资产偏多；数据超预期→降息后推→震荡格局延续。数据出来前不建议重仓押方向。`;
+  else if (sig.earnings) outlook = `财报季是近期最重要的基本面催化剂。盈利能否超预期、指引是否下调，直接决定了这轮反弹的持续性。关注头部科技公司的财报质量，它们的走势会带动整体市场情绪。`;
+  else outlook = `${snap.btcPrice?`$BTC 当前 $${snap.btcPrice} 附近横盘`:'短期市场维持震荡'}，缺乏强方向性催化剂。操作上建议等待有效突破确认后再入场，避免在信息密集期过度频繁操作。控制仓位，守住资金效率。`;
+
+  return {contra, logic, risks, outlook};
+}
+
+// ══════════════════════════════════════════
+// GENERATE POST
+// ══════════════════════════════════════════
+async function generatePost() {
+  const loading = document.getElementById('postLoading');
+  const area = document.getElementById('postArea');
+  loading.classList.add('show');
+  area.style.opacity = '0.3';
+  await new Promise(r => setTimeout(r, 700));
+
+  const post = buildPost(currentTopic);
+  const el = document.getElementById('xpostText');
+  el.textContent = post;
+  el.classList.remove('empty');
+  updateCharCount('xpostText','charCount');
+
+  loading.classList.remove('show');
+  area.style.opacity = '1';
+  generateAnalysis();
+}
+
+async function generatePostFull() {
+  const loading = document.getElementById('postLoading2');
+  const area = document.getElementById('postArea2');
+  loading.classList.add('show');
+  area.style.opacity = '0.3';
+  await new Promise(r => setTimeout(r, 700));
+
+  const post = buildPost(currentTopicX);
+  const el = document.getElementById('xpostText2');
+  el.textContent = post;
+  updateCharCount('xpostText2','charCount2');
+
+  loading.classList.remove('show');
+  area.style.opacity = '1';
+  renderStyleExamples();
+}
+
+// ══════════════════════════════════════════
+// GENERATE ANALYSIS
+// ══════════════════════════════════════════
+async function generateAnalysis() {
+  const el = document.getElementById('analysisContent');
+  el.innerHTML = '<div class="loading-row"><div class="spinner"></div> 正在整合分析...</div>';
+  await new Promise(r => setTimeout(r, 500));
+
+  const {contra, logic, risks, outlook} = buildAnalysis(currentTopic);
+  document.getElementById('analysisSub').textContent = `已更新 · ${new Date().toLocaleTimeString('zh-CN')}`;
+
+  el.innerHTML = `<div class="analysis-section">
+    <div class="analysis-block full">
+      <div class="a-label">核心矛盾</div>
+      <div class="a-text">${contra}</div>
+    </div>
+    <div class="analysis-block green-border full">
+      <div class="a-label green">行情逻辑</div>
+      <div class="a-text">${logic}</div>
+    </div>
+    <div class="analysis-block red-border">
+      <div class="a-label red">主要风险</div>
+      <div class="a-text">${risks}</div>
+    </div>
+    <div class="analysis-block blue-border">
+      <div class="a-label blue">短期展望</div>
+      <div class="a-text">${outlook}</div>
+    </div>
+  </div>
+  <div style="padding-top:8px;font-size:10px;color:var(--text4);text-align:right">
+    基于实时资讯与行情 · 仅供参考，不构成投资建议
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+// X STYLE EXAMPLES
+// ══════════════════════════════════════════
+function renderStyleExamples() {
+  const examples = [
+    {label:'📌 风格参考 A（宏观分析型）', text:'降息预期越推越远，但市场不跌——说明资金在等，不是在逃。这种"撑而不涨"的状态往往是大方向切换前的积累期。'},
+    {label:'📌 风格参考 B（行情点评型）', text:'$BTC 守住支撑，没有大跌，说明筹码结构还行。但成交量萎缩是隐患——流动性不回来，靠情绪推不出新高。'},
+    {label:'📌 风格参考 C（地缘评论型）', text:'霍尔木兹的风险没消失，只是被市场暂时定价了。油价是最直接的晴雨表，比任何分析师预测都更诚实。'},
+  ];
+  const el = document.getElementById('xStyleExamples');
+  if (!el) return;
+  el.innerHTML = examples.map(e => `
+    <div style="background:var(--bg2);border-radius:8px;padding:10px 14px;margin-bottom:8px;border:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--text4);margin-bottom:4px;font-weight:700">${e.label}</div>
+      <div style="font-size:13px;line-height:1.7;color:var(--text2)">${e.text}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// MORNING BRIEF REPORT
+// ══════════════════════════════════════════
+function buildMorningBrief() {
+  const snap = getSnap();
+  const sig = extractSignals(allNewsItems.slice(0,20).map(n=>n.title));
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  const fgLabel = fearGreedValue !== null ? `${fearGreedValue} (${fearGreedValue<=25?'极度恐慌':fearGreedValue<=45?'恐慌':fearGreedValue<=55?'中性':fearGreedValue<=75?'贪婪':'极度贪婪'})` : '--';
+
+  const topNewsHTML = allNewsItems.slice(0,8).map((n,i) =>
+    `<li><strong>${n.src}：</strong>${n.title}</li>`
+  ).join('');
+
+  const {contra, logic, risks, outlook} = buildAnalysis('all');
+
+  const cryptoRows = cryptoData.slice(0,6).map(c => {
+    const chg = c.price_change_percentage_24h||0;
+    const arrow = chg>=0?'▲':'▼';
+    const color = chg>=0?'color:var(--green)':'color:var(--red)';
+    return `<div class="report-mini-card">
+      <div class="report-mini-label">${SYM[c.id]||c.symbol.toUpperCase()}</div>
+      <div class="report-mini-val">$${formatP(c.current_price)}</div>
+      <div class="report-mini-chg" style="${color}">${arrow} ${Math.abs(chg).toFixed(2)}%</div>
+    </div>`;
+  }).join('');
+
+  const signalTags = [
+    sig.war && '<span style="background:var(--red2);color:var(--red);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">⚠ 地缘风险</span>',
+    sig.fed && '<span style="background:var(--blue2);color:var(--blue);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">🏦 联储关注</span>',
+    sig.trade && '<span style="background:var(--gold2);color:var(--gold);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">📦 贸易摩擦</span>',
+    sig.oil && '<span style="background:#fff8e8;color:#8a5c00;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">🛢 油价关注</span>',
+    sig.etf && '<span style="background:var(--purple2);color:var(--purple);padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">🏛 机构资金</span>',
+  ].filter(Boolean).join(' ');
+
+  return `<div class="report-page">
+  <div class="report-header">
+    <div class="report-edition">🌅 早餐日报 · Morning Brief</div>
+    <div class="report-headline">全球市场每日情报 · ${dateStr}</div>
+    <div class="report-dateline">数据来源：CoinGecko · Reuters · WSJ · Stooq · Alternative.me · ${now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})} 生成</div>
+    ${signalTags ? `<div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">${signalTags}</div>` : ''}
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">📊 加密市场快照</div>
+      <div class="report-grid report-grid-3">${cryptoRows}</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px">
+        <span style="font-size:13px"><strong>市场情绪：</strong><span style="color:var(--accent)">${snap.sentiment}</span></span>
+        <span style="font-size:13px"><strong>恐贪指数：</strong><span style="color:var(--accent)">${fgLabel}</span></span>
+        <span style="font-size:13px"><strong>主要涨幅：</strong><span style="color:var(--green)">${snap.ups}/${cryptoData.length} 上涨</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">🧠 今日核心分析</div>
+      <div class="analysis-section" style="margin-bottom:0">
+        <div class="analysis-block full"><div class="a-label">核心矛盾</div><div class="a-text">${contra}</div></div>
+        <div class="analysis-block green-border full"><div class="a-label green">行情逻辑</div><div class="a-text">${logic}</div></div>
+        <div class="analysis-block red-border"><div class="a-label red">主要风险</div><div class="a-text">${risks}</div></div>
+        <div class="analysis-block blue-border"><div class="a-label blue">今日展望</div><div class="a-text">${outlook}</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">📰 今日要闻 TOP 8</div>
+      <ul class="report-bullets">${topNewsHTML||'<li>暂无资讯，请先刷新新闻</li>'}</ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">𝕏 今日推荐投稿</div>
+      <div style="background:#fff;border:2px solid var(--border2);border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.75;color:var(--text);margin-bottom:10px">
+        ${buildPost('all')}
+      </div>
+      <div style="font-size:11px;color:var(--text4)">可直接复制发布至 X（100字以内）</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:16px 0;font-size:11px;color:var(--text4);border-top:1px solid var(--border)">
+    MacroKOL 情报站 · 数据仅供参考，不构成投资建议 · ${dateStr}
+  </div>
+</div>`;
+}
+
+function buildNowReport() {
+  const snap = getSnap();
+  const now = new Date();
+  const timeStr = now.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const {contra, logic, risks, outlook} = buildAnalysis('all');
+  const sig = extractSignals(allNewsItems.slice(0,15).map(n=>n.title));
+
+  const recentNews = allNewsItems.slice(0,6).map(n =>
+    `<li><strong>[${n.src}]</strong> ${n.title}</li>`
+  ).join('');
+
+  const hotSignals = [
+    sig.war && '地缘风险活跃',
+    sig.fed && '美联储政策博弈',
+    sig.trade && '贸易摩擦升温',
+    sig.oil && '能源市场波动',
+    sig.btcBull && 'BTC 看涨信号',
+    sig.btcBear && 'BTC 下行压力',
+  ].filter(Boolean).join(' · ') || '市场情绪中性';
+
+  return `<div class="report-page">
+  <div class="report-header">
+    <div class="report-edition">⚡ 即时报告 · Snapshot Report</div>
+    <div class="report-headline">当前市场状态总结</div>
+    <div class="report-dateline">生成时间：${timeStr} · 数据实时</div>
+    <div style="margin-top:10px;font-size:13px;color:#c8bfb0">📡 当前热点信号：${hotSignals}</div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">📌 即时摘要</div>
+      <div class="report-body">
+        <p>${contra}</p>
+        <p>${logic}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">⚠ 风险与展望</div>
+      <div class="analysis-section">
+        <div class="analysis-block red-border"><div class="a-label red">当前风险</div><div class="a-text">${risks}</div></div>
+        <div class="analysis-block blue-border"><div class="a-label blue">近期展望</div><div class="a-text">${outlook}</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">📰 最近 6 条要闻</div>
+      <ul class="report-bullets">${recentNews||'<li>暂无资讯，请先刷新</li>'}</ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="report-section-title">𝕏 本刻推荐投稿</div>
+      <div style="background:#fff;border:2px solid var(--border2);border-radius:8px;padding:14px;font-size:14px;line-height:1.75">${buildPost('all')}</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:16px 0;font-size:11px;color:var(--text4);border-top:1px solid var(--border)">
+    MacroKOL · ${timeStr} · 仅供参考，不构成投资建议
+  </div>
+</div>`;
+}
+
+async function generateMorningBrief() {
+  const el = document.getElementById('reportContent');
+  el.innerHTML = '<div class="loading-row" style="padding:40px 20px;justify-content:center"><div class="spinner"></div> 正在生成早餐日报...</div>';
+  await new Promise(r => setTimeout(r, 800));
+  el.innerHTML = buildMorningBrief();
+  showToast('✅ 早餐日报已生成');
+}
+
+async function generateNowReport() {
+  const el = document.getElementById('reportContent');
+  el.innerHTML = '<div class="loading-row" style="padding:40px 20px;justify-content:center"><div class="spinner"></div> 正在生成即时报告...</div>';
+  await new Promise(r => setTimeout(r, 500));
+  el.innerHTML = buildNowReport();
+  showToast('✅ 即时报告已生成');
+}
+
+function printReport() {
+  window.print();
+}
+
+// ══════════════════════════════════════════
+// REFRESH ALL
+// ══════════════════════════════════════════
+async function refreshAll() {
+  showToast('⟳ 正在刷新全部数据...', 4000);
+  document.getElementById('statusText').textContent = '正在更新...';
+  await Promise.allSettled([fetchCrypto(), fetchFearGreed(), fetchStocks(), fetchCommodities(), fetchNews()]);
+  _dataLoaded = true;
+  document.getElementById('statusText').textContent = '数据来源：CoinGecko · Stooq · Alternative.me · Reuters · WSJ · Investing.com';
+  document.getElementById('lastUpdate').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN');
+  showToast('✅ 全部数据已更新');
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+async function init() {
+  renderStyleExamples();
+  await Promise.allSettled([fetchCrypto(), fetchFearGreed(), fetchNews()]);
+  _dataLoaded = true;
+  document.getElementById('statusText').textContent = 'CoinGecko · Reuters · WSJ · Investing.com · Alternative.me';
+  document.getElementById('lastUpdate').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN');
+  // Fetch slower data
+  fetchStocks().catch(()=>{});
+  fetchCommodities().catch(()=>{});
+}
+
+init();
+
+// Auto-refresh crypto + F&G every 3 minutes
+setInterval(() => { fetchCrypto().catch(()=>{}); fetchFearGreed().catch(()=>{}); }, 3 * 60 * 1000);
+// News every 10 minutes
+setInterval(() => { fetchNews().catch(()=>{}); }, 10 * 60 * 1000);
+</script>
+</body>
+</html>
